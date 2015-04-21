@@ -1,0 +1,149 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <cmath>
+#include <cstdlib>
+#include <algorithm>
+using namespace std;
+
+int main()
+{
+string locations;
+string names;
+cout << "Enter Locations Filename: ";
+cin >> locations;
+cout << "Enter Names Filename: ";
+cin >> names;
+
+ifstream input("locations.txt");
+ifstream input2("names.txt");
+ofstream output("journey.txt");
+//vector <int> grid(2);
+//vector <int> start(2);
+//vector <int> end(2);
+int i,j,k,l;
+int x = 1;
+int listSize = 0;
+int potential = 0;
+int nextPoint;
+int min;
+int index = 0;
+int min_index;
+double distance1, distance2;
+int g1,g2,s1,s2,e1,e2,sp1,sp2,spID;
+char spS;
+
+input >> g1 >> g2 >> s1 >> s2 >> e1 >> e2;
+vector < vector<char> > grid(g1 , vector<char>(g2));
+vector <int> greedyColumns(0);
+greedyColumns.push_back(s2);
+vector <int> greedyRows(0);
+greedyRows.push_back(s1);
+vector <int> IDs(0);
+
+for(i = 0; i<g1; i++)
+{
+  for(j = 0; j<g2; j++)
+  {
+	grid[i][j] = '.';
+  }
+}
+grid[s1-1][s2-1] = 'S';
+grid[e1-1][e2-1] = 'E';
+
+while(input >> sp1 >> sp2)
+{
+  if(sp1 < 1)
+  {
+	input >> spS >> spID;
+	cout << spID << " out of bounds - ignoring" << endl;
+  }
+  else if(sp2 < 1)
+  {
+	input >> spS >> spID;
+	cout << spID << " out of bounds - ignoring" << endl;
+  }
+  else if(sp1 > g1)
+  {
+	input >> spS >> spID;
+	cout << spID << " out of bounds - ignoring" << endl;
+  }
+  else if(sp2 > g2)
+  {
+	input >> spS >> spID;
+	cout << spID << " out of bounds - ignoring" << endl;
+  }
+  else
+  {
+	input >> spS >> spID;
+	grid[sp1-1][sp2-1] = spS;
+	greedyRows.push_back(sp1);
+	greedyColumns.push_back(sp2);
+	IDs.push_back(spID);
+  }
+
+}
+for(k=0; k<g1; k++)
+{
+  for(l=0; l<g2; l++)
+  {
+	output << grid[k][l];
+  }
+output << endl;
+}
+
+int spID2;
+string name;
+vector <int> IDs2(0);
+vector <string> listLoc(0);
+
+while(input2 >> spID2 >> name)
+{
+  IDs2.push_back(spID2);
+  while(name.find("XX") != -1)
+  {
+	int XX = name.find("XX");
+	name.erase(XX,2);
+  }
+  while(name.find("_") != -1)
+  {
+	int underscore = name.find("_");
+	name.replace(underscore,1," ");
+  }
+  listLoc.push_back(name);
+}
+
+vector <double> distances(0);
+int size = greedyRows.size()-1;
+while(listSize < size)
+{
+  while(potential < greedyRows.size()-1)
+  {
+	distance1 = sqrt(pow(s1-greedyRows[potential],2) + pow(s2-greedyColumns[potential],2));
+	distances.push_back(distance1);
+	min = distances[0];
+	for(i=1; i < size; i++)
+	{
+	  if(distance1 < min)
+	  {
+		min = distance1;
+		index = i;
+	  }
+	}	
+	potential++;
+	cout << distance1 << endl;
+	cout << index << endl;
+  }
+
+s1 = greedyRows[min_index];
+s2 = greedyColumns[min_index];
+greedyRows.erase(greedyRows.begin() + min_index);
+greedyColumns.erase(greedyColumns.begin() + min_index);
+listSize++;
+potential = 0;
+}
+
+
+return 0;
+}
